@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מערכת נקודות ופרסים - משפחת מילר</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌟 מערכת נקודות ופרסים 🌟</h1>
+            <button id="adminToggle" class="admin-btn">כניסה למנהל</button>
+        </header>
+
+        <!-- Admin Login Modal -->
+        <div id="loginModal" class="modal hidden">
+            <div class="modal-content">
+                <h2>כניסה למנהל</h2>
+                <input type="password" id="adminPassword" placeholder="סיסמה">
+                <button id="loginBtn">התחבר</button>
+                <button id="cancelLoginBtn">ביטול</button>
+                <p id="loginError" class="error hidden">סיסמה שגויה</p>
+            </div>
+        </div>
+
+        <!-- Home Screen -->
+        <div id="homeScreen">
+            <!-- Points Sidebar -->
+            <div class="points-sidebar">
+                <h3>💰 יתרה</h3>
+                <div id="sidebarPoints"></div>
+            </div>
+
+            <!-- Main Home Content -->
+            <div class="home-content">
+                <div class="home-buttons">
+                    <button class="mega-button shop-button" id="goToShop">
+                        <div class="button-icon">🛒</div>
+                        <div class="button-text">חנות הפרסים</div>
+                        <div class="button-subtitle">קנה פרסים מדהימים!</div>
+                    </button>
+                    <button class="mega-button tasks-button" id="goToTasks">
+                        <div class="button-icon">📋</div>
+                        <div class="button-text">משימות</div>
+                        <div class="button-subtitle">ראה איך לצבור נקודות</div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tasks View Screen -->
+        <div id="tasksScreen" class="hidden">
+            <button class="back-button" id="backFromTasks">← חזרה</button>
+
+            <section class="section">
+                <h2>📋 משימות זמינות</h2>
+                <p class="screen-subtitle">השלם משימות כדי לצבור נקודות!</p>
+                <div id="tasksList" class="table-container"></div>
+            </section>
+
+            <section class="section">
+                <h2>💰 יתרת נקודות</h2>
+                <div id="kidsPoints" class="cards-container"></div>
+            </section>
+        </div>
+
+        <!-- Shop Screen -->
+        <div id="shopScreen" class="hidden">
+            <button class="back-button" id="backFromShop">← חזרה</button>
+
+            <!-- Shop Booth/Seller -->
+            <div class="shop-booth">
+                <div class="booth-roof"></div>
+                <div class="seller-container">
+                    <div class="seller">
+                        <div class="seller-face">😊</div>
+                        <div class="seller-body"></div>
+                    </div>
+                    <div class="speech-bubble">
+                        ברוכים הבאים לחנות! 🎉
+                    </div>
+                </div>
+                <div class="booth-counter"></div>
+            </div>
+
+            <section class="section">
+                <h2>🎁 פרסים למכירה</h2>
+                <div id="prizesList" class="shop-container"></div>
+            </section>
+
+            <section class="section">
+                <h2>📜 קניות אחרונות</h2>
+                <div id="prizeRequests" class="requests-container"></div>
+            </section>
+        </div>
+
+        <!-- Admin Panel -->
+        <div id="adminPanel" class="hidden">
+            <h2>🔧 פאנל ניהול</h2>
+
+            <!-- Award Points -->
+            <div class="admin-section">
+                <h3>הענקת נקודות</h3>
+                <select id="childSelect"></select>
+                <select id="taskSelect"></select>
+                <button id="awardPointsBtn">הענק נקודות</button>
+            </div>
+
+            <!-- Manage Tasks -->
+            <div class="admin-section">
+                <h3>ניהול משימות</h3>
+                <input type="text" id="taskName" placeholder="שם המשימה">
+                <input type="number" id="taskPoints" placeholder="נקודות">
+                <button id="addTaskBtn">הוסף משימה</button>
+                <div id="adminTasksList"></div>
+            </div>
+
+            <!-- Manage Prizes -->
+            <div class="admin-section">
+                <h3>ניהול פרסים</h3>
+                <input type="text" id="prizeName" placeholder="שם הפרס">
+                <input type="number" id="prizeCost" placeholder="עלות בנקודות">
+                <input type="text" id="prizeIcon" placeholder="אייקון (אמוג'י)" maxlength="2">
+                <button id="addPrizeBtn">הוסף פרס</button>
+                <div id="adminPrizesList"></div>
+            </div>
+
+            <!-- Purchase History -->
+            <div class="admin-section">
+                <h3>📜 היסטוריית קניות <span id="purchaseBadge" class="notification-badge" style="display:none;"></span></h3>
+                <div id="adminPrizeRequests"></div>
+            </div>
+
+            <button id="logoutBtn" class="logout-btn">התנתק</button>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module" src="app.js"></script>
+</body>
+</html>
