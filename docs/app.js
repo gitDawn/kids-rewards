@@ -1,6 +1,9 @@
 // Firebase configuration - YOU NEED TO REPLACE THESE WITH YOUR FIREBASE PROJECT CREDENTIALS
+console.log('🚀 App.js is loading...');
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
 import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, onSnapshot, setDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+console.log('📦 Firebase modules imported successfully');
 
 // Firebase config
 const firebaseConfig = {
@@ -12,9 +15,11 @@ const firebaseConfig = {
     appId: "1:600926409502:web:149b577049950a07c7af0f"
 };
 
+console.log('🔧 Initializing Firebase...');
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+console.log('✅ Firebase initialized successfully');
 
 // Admin password (in production, use Firebase Auth instead)
 const ADMIN_PASSWORD = "1234"; // CHANGE THIS PASSWORD!
@@ -40,9 +45,11 @@ const loginError = document.getElementById('loginError');
 
 // Initialize app
 async function initApp() {
+    console.log('🏁 Starting app initialization...');
     await initializeDatabase();
     loadData();
     setupEventListeners();
+    console.log('✅ App initialization complete!');
 }
 
 // Initialize database with default data
@@ -148,6 +155,7 @@ function loadData() {
 
 // Setup event listeners
 function setupEventListeners() {
+    console.log('🎯 Setting up event listeners...');
     adminToggle.addEventListener('click', () => {
         if (isAdmin) {
             logout();
@@ -646,4 +654,5 @@ window.denyRequest = async function(requestId) {
 }
 
 // Start the app
+console.log('🌟 Starting Kids Rewards App...');
 initApp();
