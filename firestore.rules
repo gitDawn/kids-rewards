@@ -1,28 +1,10 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // Allow everyone to read all data (so kids can see points, tasks, prizes)
+    // Allow all read and write access for testing
+    // WARNING: This is insecure - secure it before going to production!
     match /{document=**} {
-      allow read: true;
-    }
-
-    // For production, you should implement proper authentication
-    // For now, allow writes (but you should secure this!)
-    match /children/{childId} {
-      allow write: true; // In production: only allow authenticated admin
-    }
-
-    match /tasks/{taskId} {
-      allow write: true; // In production: only allow authenticated admin
-    }
-
-    match /prizes/{prizeId} {
-      allow write: true; // In production: only allow authenticated admin
-    }
-
-    match /prizeRequests/{requestId} {
-      allow write: true; // Allow anyone to create requests, admin to update
+      allow read, write: if true;
     }
   }
 }

@@ -31,6 +31,7 @@ let tasks = [];
 let prizes = [];
 let prizeRequests = [];
 let purchaseHistory = [];
+let activityHistory = [];
 
 // DOM Elements
 const loginModal = document.getElementById('loginModal');
@@ -149,6 +150,14 @@ function loadData() {
         renderPurchaseHistory();
         if (isAdmin) {
             showNewPurchaseNotification();
+        }
+    });
+
+    // Listen to activity history changes
+    onSnapshot(collection(db, 'activityHistory'), (snapshot) => {
+        activityHistory = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        if (isAdmin) {
+            renderActivityHistory();
         }
     });
 }
@@ -353,6 +362,11 @@ window.requestPrize = async function(prizeId, prizeName, prizeCost) {
             points: child.points - prizeCost
         });
 
+        const now = new Date();
+        const timestampISO = now.toISOString();
+        const date = now.toLocaleDateString('he-IL');
+        const time = now.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' });
+
         // Create purchase history for admin
         await addDoc(collection(db, 'purchaseHistory'), {
             childId: child.id,
@@ -360,8 +374,23 @@ window.requestPrize = async function(prizeId, prizeName, prizeCost) {
             prizeId: prizeId,
             prizeName: prizeName,
             prizeCost: prizeCost,
-            timestamp: new Date().toISOString(),
+            timestamp: timestampISO,
+            date: date,
+            time: time,
             viewed: false
+        });
+
+        // Log to activity history
+        await addDoc(collection(db, 'activityHistory'), {
+            type: 'prize_purchased',
+            childId: child.id,
+            childName: child.name,
+            prizeId: prizeId,
+            prizeName: prizeName,
+            points: -prizeCost,
+            timestamp: timestampISO,
+            date: date,
+            time: time
         });
 
         alert(`🎉 כל הכבוד ${child.name}!\n\nקנית: ${prizeName}\nנוכו: ${prizeCost} נקודות\nנשאר לך: ${child.points - prizeCost} נקודות`);
@@ -459,9 +488,24 @@ async function awardPoints() {
     const task = tasks.find(t => t.id === taskId);
 
     try {
+        // Update child points
         await updateDoc(doc(db, 'children', childId), {
             points: child.points + task.points
         });
+
+        // Log to activity history
+        await addDoc(collection(db, 'activityHistory'), {
+            type: 'points_awarded',
+            childId: child.id,
+            childName: child.name,
+            taskId: task.id,
+            taskName: task.name,
+            points: task.points,
+            timestamp: new Date().toISOString(),
+            date: new Date().toLocaleDateString('he-IL'),
+            time: new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' })
+        });
+
         alert(`${task.points} נקודות נוספו ל-${child.name}!`);
     } catch (error) {
         console.error('Error awarding points:', error);
@@ -651,6 +695,54 @@ window.denyRequest = async function(requestId) {
         console.error('Error denying request:', error);
         alert('אירעה שגיאה');
     }
+}
+
+// Render activity history
+function renderActivityHistory() {
+    const container = document.getElementById('activityHistoryList');
+
+    if (!container) return;
+
+    const sortedHistory = [...activityHistory].sort((a, b) =>
+        new Date(b.timestamp) - new Date(a.timestamp)
+    );
+
+    if (sortedHistory.length === 0) {
+        container.innerHTML = '<p>אין פעילות עדיין</p>';
+        return;
+    }
+
+    container.innerHTML = `
+        <div class="history-container">
+            ${sortedHistory.map(activity => {
+                const icon = activity.type === 'points_awarded' ? '⭐' : '🎁';
+                const actionText = activity.type === 'points_awarded'
+                    ? `קיבל/ה ${activity.points} נקודות עבור: ${activity.taskName}`
+                    : `קנה/תה את: ${activity.prizeName} (${activity.points} נקודות)`;
+                const pointsClass = activity.type === 'points_awarded' ? 'points-positive' : 'points-negative';
+                const pointsDisplay = activity.type === 'points_awarded'
+                    ? `+${activity.points}`
+                    : `${activity.points}`;
+
+                return `
+                    <div class="history-item">
+                        <div class="history-icon">${icon}</div>
+                        <div class="history-details">
+                            <div class="history-main">
+                                <strong>${activity.childName}</strong> ${actionText}
+                            </div>
+                            <div class="history-time">
+                                📅 ${activity.date} | ⏰ ${activity.time}
+                            </div>
+                        </div>
+                        <div class="history-points ${pointsClass}">
+                            ${pointsDisplay}
+                        </div>
+                    </div>
+                `;
+            }).join('')}
+        </div>
+    `;
 }
 
 // Start the app
