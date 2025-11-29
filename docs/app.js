@@ -156,9 +156,8 @@ function loadData() {
     // Listen to activity history changes
     onSnapshot(collection(db, 'activityHistory'), (snapshot) => {
         activityHistory = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        if (isAdmin) {
-            renderActivityHistory();
-        }
+        renderActivityHistory();
+        renderPublicActivityHistory();
     });
 }
 
@@ -697,7 +696,7 @@ window.denyRequest = async function(requestId) {
     }
 }
 
-// Render activity history
+// Render activity history (admin panel - full history)
 function renderActivityHistory() {
     const container = document.getElementById('activityHistoryList');
 
@@ -709,6 +708,54 @@ function renderActivityHistory() {
 
     if (sortedHistory.length === 0) {
         container.innerHTML = '<p>אין פעילות עדיין</p>';
+        return;
+    }
+
+    container.innerHTML = `
+        <div class="history-container">
+            ${sortedHistory.map(activity => {
+                const icon = activity.type === 'points_awarded' ? '⭐' : '🎁';
+                const actionText = activity.type === 'points_awarded'
+                    ? `קיבל/ה ${activity.points} נקודות עבור: ${activity.taskName}`
+                    : `קנה/תה את: ${activity.prizeName} (${activity.points} נקודות)`;
+                const pointsClass = activity.type === 'points_awarded' ? 'points-positive' : 'points-negative';
+                const pointsDisplay = activity.type === 'points_awarded'
+                    ? `+${activity.points}`
+                    : `${activity.points}`;
+
+                return `
+                    <div class="history-item">
+                        <div class="history-icon">${icon}</div>
+                        <div class="history-details">
+                            <div class="history-main">
+                                <strong>${activity.childName}</strong> ${actionText}
+                            </div>
+                            <div class="history-time">
+                                📅 ${activity.date} | ⏰ ${activity.time}
+                            </div>
+                        </div>
+                        <div class="history-points ${pointsClass}">
+                            ${pointsDisplay}
+                        </div>
+                    </div>
+                `;
+            }).join('')}
+        </div>
+    `;
+}
+
+// Render public activity history (tasks screen - recent 15 items)
+function renderPublicActivityHistory() {
+    const container = document.getElementById('publicActivityHistory');
+
+    if (!container) return;
+
+    const sortedHistory = [...activityHistory]
+        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+        .slice(0, 15); // Show only recent 15 items
+
+    if (sortedHistory.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: #666;">אין פעילות עדיין - התחילו לצבור נקודות!</p>';
         return;
     }
 
