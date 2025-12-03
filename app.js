@@ -464,6 +464,19 @@ function renderChildSelect() {
     const select = document.getElementById('childSelect');
     select.innerHTML = '<option value="">בחר ילד</option>' +
         children.map(child => `<option value="${child.id}">${child.name}</option>`).join('');
+    renderAdminChildren();
+}
+
+// Admin: Render children list
+function renderAdminChildren() {
+    const container = document.getElementById('adminChildrenList');
+    if (!container) return;
+    container.innerHTML = children.map(child => `
+        <div class="admin-item">
+            <span>${child.name} - ${child.points} נקודות</span>
+            <button class="delete-btn" onclick="deleteChild('${child.id}')">מחק</button>
+        </div>
+    `).join('');
 }
 
 // Admin: Render task select
@@ -596,6 +609,19 @@ window.deletePrize = async function(prizeId) {
         await deleteDoc(doc(db, 'prizes', prizeId));
     } catch (error) {
         console.error('Error deleting prize:', error);
+        alert('אירעה שגיאה');
+    }
+}
+
+// Admin: Delete child
+window.deleteChild = async function(childId) {
+    const child = children.find(c => c.id === childId);
+    if (!confirm(`האם למחוק את ${child.name}?`)) return;
+    try {
+        await deleteDoc(doc(db, 'children', childId));
+        alert(`${child.name} נמחק בהצלחה`);
+    } catch (error) {
+        console.error('Error deleting child:', error);
         alert('אירעה שגיאה');
     }
 }
